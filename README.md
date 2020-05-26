@@ -10,6 +10,8 @@ The following must be installed before running this script:
 
 Run the script with  the following command:
 ```shell script
-wget -O - https://git.io/Jfw9e | bash -s myApp myCompany frontend backend
+
+bash <(wget -o /dev/null -O- http://git.io/Jfw9e) myApp myCompany frontend backend
+
 ```
 
