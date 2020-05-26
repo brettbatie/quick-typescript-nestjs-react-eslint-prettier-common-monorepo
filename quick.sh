@@ -22,13 +22,14 @@ git init
 yarn add -D lerna
 npx lerna init
 jq '.npmClient="yarn" | .useWorkspaces=true' lerna.json > lerna.json.tmp && mv lerna.json.tmp lerna.json 
-jq '.workspaces=["projects/*"] | .private=true' package.json > package.json.tmp && mv package.json.tmp package.json
+jq '.workspaces={"packages":["projects/*"], "nohoist":["**/jest"]} | .private=true' package.json > package.json.tmp && mv package.json.tmp package.json
+
 
 # Create packages
 npx lerna create @companyName/common --private --description 'common' -y
 # Create react app
 npx create-react-app projects/$frontendName --template typescript
-jq ".name=\"@$companyName/$frontendName\"" projects/$frontendName/package.json > projects/$frontendName/package.json.tmp && mv projects/$frontendName/package.json.tmp projects/$frontendName/package.json
+jq ".scripts.start=\"PORT=4000 react-scripts start\" | .name=\"@$companyName/$frontendName\"" projects/$frontendName/package.json > projects/$frontendName/package.json.tmp && mv projects/$frontendName/package.json.tmp projects/$frontendName/package.json
 ## Create Nest app
 npx @nestjs/cli new projects/$backendName -g -p yarn
 jq ".name=\"@$companyName/$backendName\"" projects/$backendName/package.json > projects/$backendName/package.json.tmp && mv projects/$backendName/package.json.tmp projects/$backendName/package.json
