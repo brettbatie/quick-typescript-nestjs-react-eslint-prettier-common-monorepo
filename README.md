@@ -6,7 +6,7 @@ The following must be installed before running this script:
 - jq
 - npm
 - yarn
-- lerna (yarn global add lerna)
+- lerna (yarn global add lerna@v3.4.0)
 
 Run the script with the following command:
 ```shell script

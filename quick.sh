@@ -19,23 +19,31 @@ backendName=$4
 mkdir $folderName && cd $folderName
 git init
 
-yarn add -D lerna
 npx lerna init
 jq '.npmClient="yarn" | .useWorkspaces=true' lerna.json > lerna.json.tmp && mv lerna.json.tmp lerna.json 
 jq '.workspaces={"packages":["projects/*"], "nohoist":["**/jest"]} | .private=true' package.json > package.json.tmp && mv package.json.tmp package.json
 
-
-# Create packages
+# Create common package
 npx lerna create @companyName/common --private --description 'common' -y
+
 # Create react app
 npx create-react-app projects/$frontendName --template typescript
 jq ".scripts.start=\"PORT=4000 react-scripts start\" | .name=\"@$companyName/$frontendName\"" projects/$frontendName/package.json > projects/$frontendName/package.json.tmp && mv projects/$frontendName/package.json.tmp projects/$frontendName/package.json
+#downgrading react-sript from 3.4.1 to 3.4.0 as 3.4.1 broke lerna run start --parallel
+(cd "projects/$frontendName" yarn add react-scripts@3.4.0)
+# allows eslint to work from the root (monorepo) folder
+echo '{
+  "extends": "react-app",
+  "root": false
+}' > projects/$frontendName/.eslintrc.json
+
 ## Create Nest app
 npx @nestjs/cli new projects/$backendName -g -p yarn
 jq ".name=\"@$companyName/$backendName\"" projects/$backendName/package.json > projects/$backendName/package.json.tmp && mv projects/$backendName/package.json.tmp projects/$backendName/package.json
 # Convert js to json
 echo 'const file=require("./projects/$backendName/.eslintrc.js");console.log(JSON.stringify(file,null,4));' | node > projects/$backendName/.eslintrc.json
 rm projects/$backendName/.eslintrc.js
+jq ".parserOptions.project=\"projects/$backendName/tsconfig.json\"" projects/$backendName/.eslintrc.json > projects/$backendName/.eslintrc.json.tmp && mv projects/$backendName/.eslintrc.json.tmp projects/$backendName/.eslintrc.json
 
 # Add common to each package (except common)
 npx lerna add @$companyName/common
@@ -53,7 +61,7 @@ echo '{
 }' > .prettierrc.json
 
 jq '.extends[.extends|length]+="prettier/@typescript-eslint" | .extends[.extends|length]+="plugin:prettier/recommended"' .eslintrc.json > .eslintrc.json.tmp && mv .eslintrc.json.tmp .eslintrc.json
-jq ".parserOptions.project=\"projects/$backendName/tsconfig.json\"" projects/$backendName/.eslintrc.json > projects/$backendName/.eslintrc.json.tmp && mv projects/$backendName/.eslintrc.json.tmp projects/$backendName/.eslintrc.json
+
 
 # Pull duplicate dev dependencies down to the root 
 npx lerna bootstrap
