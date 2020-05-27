@@ -28,7 +28,8 @@ npx lerna create @companyName/common --private --description 'common' -y
 
 # Create react app
 npx create-react-app projects/$frontendName --template typescript
-jq ".scripts.start=\"PORT=4000 react-scripts start\" | .name=\"@$companyName/$frontendName\"" projects/$frontendName/package.json > projects/$frontendName/package.json.tmp && mv projects/$frontendName/package.json.tmp projects/$frontendName/package.json
+# Adding a proxy to the api server and running react on port 4000 and setting the scope
+jq ".proxy=\"http://localhost:3000\" | .scripts.start=\"PORT=4000 react-scripts start\" | .name=\"@$companyName/$frontendName\"" projects/$frontendName/package.json > projects/$frontendName/package.json.tmp && mv projects/$frontendName/package.json.tmp projects/$frontendName/package.json
 #downgrading react-sript from 3.4.1 to 3.4.0 as 3.4.1 broke lerna run start --parallel
 (cd "projects/$frontendName" yarn add react-scripts@3.4.0)
 # allows eslint to work from the root (monorepo) folder
