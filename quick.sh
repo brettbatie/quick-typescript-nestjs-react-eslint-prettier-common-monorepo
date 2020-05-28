@@ -18,6 +18,12 @@ backendName=$4
 # Setup lerna & workspaces
 mkdir $folderName && cd $folderName
 git init
+echo 'node_modules/
+dist/
+.eslintcache
+.env
+lerna-debug.log
+yarn-error.log' > .gitignore
 
 npx lerna init
 jq '.npmClient="yarn" | .useWorkspaces=true' lerna.json > lerna.json.tmp && mv lerna.json.tmp lerna.json 
@@ -66,3 +72,8 @@ jq '.extends[.extends|length]+="prettier/@typescript-eslint" | .extends[.extends
 
 # Pull duplicate dev dependencies down to the root 
 npx lerna bootstrap
+
+# passpord
+yarn add @nestjs/passport
+npm install @nestjs/jwt passport-jwt
+npm install @types/passport-jwt --save-dev
